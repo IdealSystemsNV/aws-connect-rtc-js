@@ -12,56 +12,56 @@ export default class OmnissaVDIStrategy extends CCPInitiationStrategyInterface {
         self.hasRequestedTitle = false;
 
         // Initialize Omnissa SDK dependencies
-        const HorizonWebRTCExtension = require('@euc-releases/horizon-webrtc-redir-sdk/HorizonWebRTCExtension');
-        const HorizonWebRtcRedirectionAPI = require('@euc-releases/horizon-webrtc-redir-sdk/HorizonSDKforWebRTCRedir');
+      //  const HorizonWebRTCExtension = require('@euc-releases/horizon-webrtc-redir-sdk/HorizonWebRTCExtension');
+      //  const HorizonWebRtcRedirectionAPI = require('@euc-releases/horizon-webrtc-redir-sdk/HorizonSDKforWebRTCRedir');
 
         // Attach SDK instances to window for global access
-        window.HorizonWebRTCExtension = HorizonWebRTCExtension;
-        window.HorizonWebRtcRedirectionAPI = HorizonWebRtcRedirectionAPI;
+        //window.HorizonWebRTCExtension = HorizonWebRTCExtension;
+        //window.HorizonWebRtcRedirectionAPI = HorizonWebRtcRedirectionAPI;
 
         this.globalWindowReference = null;
 
         window.getHorizonClientID = async function () {
-            return new Promise((resolve, reject) => {
-                window.HorizonWebRTCExtension.getHorizonClientID()
-                    .then((clientID) => {
-                        console.log("getHorizonClientID resolved with:", clientID);
-                        resolve(clientID);
-                    })
-                    .catch((error) => {
-                        console.error(`Failed to get client ID: ${error}`);
-                        reject(`Failed to get client ID: ${error}`);
-                    });
-            });
+            // return new Promise((resolve, reject) => {
+            //     window.HorizonWebRTCExtension.getHorizonClientID()
+            //         .then((clientID) => {
+            //             console.log("getHorizonClientID resolved with:", clientID);
+            //             resolve(clientID);
+            //         })
+            //         .catch((error) => {
+            //             console.error(`Failed to get client ID: ${error}`);
+            //             reject(`Failed to get client ID: ${error}`);
+            //         });
+            // });
         };
 
         window.getHorizonWSSPort = async function () {
-            return new Promise((resolve, reject) => {
-                window.HorizonWebRTCExtension.getHorizonWSSPort()
-                    .then((wssPort) => {
-                        console.log("getHorizonWSSPort resolved with:", wssPort);
-                        resolve(wssPort);
-                    })
-                    .catch((error) => {
-                        console.error(`Failed to get WSS port: ${error}`);
-                        reject(`Failed to get WSS port: ${error}`);
-                    });
-            });
+            // return new Promise((resolve, reject) => {
+            //     window.HorizonWebRTCExtension.getHorizonWSSPort()
+            //         .then((wssPort) => {
+            //             console.log("getHorizonWSSPort resolved with:", wssPort);
+            //             resolve(wssPort);
+            //         })
+            //         .catch((error) => {
+            //             console.error(`Failed to get WSS port: ${error}`);
+            //             reject(`Failed to get WSS port: ${error}`);
+            //         });
+            // });
         };
 
 
         window.getHorizonWindowTitle = function () {
-            if(self.topWindowName.endsWith(ACITVE_SOFTPHONE_TAB)){
-                return self.topWindowName;
-            }
+            // if(self.topWindowName.endsWith(ACITVE_SOFTPHONE_TAB)){
+            //     return self.topWindowName;
+            // }
 
-            const currentTime = self.getCurrentTimeString();
-            try {
-                return self.setTopWindowName(top.document.title + currentTime + ACITVE_SOFTPHONE_TAB);
-            } catch (error) {
-                self.setupMessageListener();
-                return self.topWindowName;
-            }
+            // const currentTime = self.getCurrentTimeString();
+            // try {
+            //     return self.setTopWindowName(top.document.title + currentTime + ACITVE_SOFTPHONE_TAB);
+            // } catch (error) {
+            //     self.setupMessageListener();
+            //     return self.topWindowName;
+            // }
         };
 
         // Initialize SDK with logging and event handling

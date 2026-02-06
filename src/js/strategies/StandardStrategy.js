@@ -3,6 +3,22 @@ import {CHROME_SUPPORTED_VERSION, RTC_ERRORS} from "../rtc_const";
 import {getChromeBrowserVersion, isChromeBrowser} from "../utils";
 import {FailedState} from "../rtc_session";
 
+//DSL
+
+import {
+    RTCPeerConnection,
+    RTCIceCandidate,
+    RTCSessionDescription,
+    RTCView,
+    MediaStream,
+    MediaStreamTrack,
+    mediaDevices,
+    registerGlobals
+  } from 'react-native-webrtc';
+
+
+  // END DSL
+
 export default class StandardStrategy extends CCPInitiationStrategyInterface {
     constructor() {
         super();
@@ -21,7 +37,8 @@ export default class StandardStrategy extends CCPInitiationStrategyInterface {
 
     // the following functions are rtc_session related functions
     _gUM(constraints) {
-        return navigator.mediaDevices.getUserMedia(constraints);
+        //DSL console.log('HACK BY DSL')
+        return mediaDevices.getUserMedia(constraints);
     }
 
     _createMediaStream(track) {
@@ -29,7 +46,12 @@ export default class StandardStrategy extends CCPInitiationStrategyInterface {
     }
 
     addStream(_pc, stream) {
-        _pc.addStream(stream);
+       //_pc.addStream(stream);
+               //DSL 118.0.0 webrtc 
+        stream.getTracks().forEach(track => {
+            _pc.addTrack(track, stream);
+            });
+
     }
 
     setRemoteDescription(self, rtcSession) {

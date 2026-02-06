@@ -46,9 +46,9 @@ import {RTC_ERRORS} from './rtc_const';
 import RtcPeerConnectionFactory from './rtc_peer_connection_factory'
 import uuid from 'uuid/v4';
 import StandardStrategy from "./strategies/StandardStrategy";
-import CitrixVDIStrategy from "./strategies/CitrixVDIStrategy";
-import DCVWebRTCStrategy from "./strategies/DCVWebRTCStrategy";
-import OmnissaVDIStrategy from "./strategies/OmnissaVDIStrategy";
+// import CitrixVDIStrategy from "./strategies/CitrixVDIStrategy";
+// import DCVWebRTCStrategy from "./strategies/DCVWebRTCStrategy";
+// import OmnissaVDIStrategy from "./strategies/OmnissaVDIStrategy";
 import RtcPeerConnectionManager from "./rtc_peer_connection_manager";
 
 global.connect = global.connect || {};
@@ -58,9 +58,9 @@ global.connect.RtcPeerConnectionFactory = RtcPeerConnectionFactory;
 global.connect.RtcPeerConnectionManager = RtcPeerConnectionManager;
 global.connect.uuid = uuid;
 global.connect.StandardStrategy = StandardStrategy;
-global.connect.CitrixVDIStrategy = CitrixVDIStrategy;
-global.connect.DCVWebRTCStrategy = DCVWebRTCStrategy;
-global.connect.OmnissaVDIStrategy = OmnissaVDIStrategy;
+// global.connect.CitrixVDIStrategy = CitrixVDIStrategy;
+// global.connect.DCVWebRTCStrategy = DCVWebRTCStrategy;
+// global.connect.OmnissaVDIStrategy = OmnissaVDIStrategy;
 
 global.lily = global.lily || {};
 global.lily.RTCSession = RtcSession;

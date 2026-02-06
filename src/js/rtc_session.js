@@ -34,6 +34,23 @@ import {
     ConnectedSubstate
 } from './rtc_session_talking_substates';
 
+//DSL
+
+import {
+    RTCPeerConnection,
+    RTCIceCandidate,
+    RTCSessionDescription,
+    RTCView,
+    MediaStream,
+    MediaStreamTrack,
+    mediaDevices,
+    registerGlobals,
+    RTCRtpReceiver
+  } from 'react-native-webrtc';
+
+
+  // END DSL
+
 export class RTCSessionState {
     /**
      *
@@ -129,7 +146,8 @@ export class GrabLocalMediaState extends RTCSessionState {
         return "GrabLocalMediaState";
     }
     _gUM(constraints) {
-        return this._rtcSession._strategy._gUM(constraints);
+        //DSL console.log('HACK BY DSL')
+        return mediaDevices.getUserMedia(constraints);
     }
 }
 export class CreateOfferState extends RTCSessionState {
@@ -537,7 +555,8 @@ export class TalkingState extends RTCSessionState {
             console.log('Timeout reached, stopping the interval');
         }, 1000);
 
-        interval = setInterval(getSynchronizationSourcesAndProcess, 20);
+        //DSL
+      //  interval = setInterval(getSynchronizationSourcesAndProcess, 20);
         this.setSubState(new ConnectedSubstate(this._rtcSession));
     }
     onSignalingReconnected() {
