@@ -10,7 +10,20 @@ import {
     BadRequestExceptionName
 } from './exceptions';
 import { parseCandidate } from 'sdp';
-import { PendingInviteState } from './signaling';
+import { PendingInviteState,PendingInviteDSLState } from './signaling';
+
+//DSL
+
+import {
+  createTransportSoftPhone,
+} from '../../../../src/state';
+
+import {
+    RTCIceCandidate,
+    RTCSessionDescription,
+  } from 'react-native-webrtc';
+
+  //END DSL
 
 /**
  * ConnectedSubstate is the default substate of the rtcSession talking state
@@ -35,7 +48,7 @@ export class ConnectedSubstate {
 
         if (iceState == ICE_CONNECTION_STATE.DISCONNECTED) {
             // Check if the rtcSession supports ICE restart
-            if (this._rtcSession._pcm && this._rtcSession._pcm._peerConnectionToken) {
+            // DSL we don't work with pcm , but directly on the session   if (this._rtcSession._pcm && this._rtcSession._pcm._peerConnectionToken) {
                 this.logger.info('Detected Lost ICE connection, pending IceRestart');
                 this.IceRestartTimeoutId = setTimeout(() => {
                     if (this._rtcSession._pc.iceConnectionState === ICE_CONNECTION_STATE.DISCONNECTED) {
@@ -46,9 +59,9 @@ export class ConnectedSubstate {
                         this.logger.info('The network recovered, IceRestart cancelled');
                     }
                 }, this.retryInterval)
-            } else {
+          /* END DSL } else {
                 this.logger.info('Detected Lost ICE connection, IceRestart not supported');
-            }
+            }*/
         }
     }
 
@@ -101,21 +114,26 @@ export class IceRestartSubstate {
     }
 
     performIceRestart() {
-        this._rtcSession._pcm._iceRestart = true
-        this._rtcSession._pcm._requestIceAccess().then((response) => {
-            var rtcPeerConnectionConfig = JSON.parse(JSON.stringify(RTC_PEER_CONNECTION_CONFIG));
-            rtcPeerConnectionConfig.iceServers = response;
-            rtcPeerConnectionConfig.iceCandidatePoolSize = DEFAULT_ICE_CANDIDATE_POOL_SIZE;
-            this._rtcSession._pc.setConfiguration(rtcPeerConnectionConfig);
-            return this._rtcSession._pc.createOffer({ iceRestart: true });
-        }).then((rtcSessionDescription) => {
-            this._rtcSession._localSessionDescription = rtcSessionDescription;
-            this.logger.info("ICE restart offer created and set as local description");
-            this._rtcSession._state.setSubState(new SetLocalSessionDescriptionSubstate(this._rtcSession));
-        }).catch((error) => {
-            this.logger.error("ICE restart failed", error);
-            this._rtcSession._state.setSubState(new ConnectedSubstate(this._rtcSession));
-        });
+        // DSL
+        // use our own createtransport iso hitch functions
+        /* this._rtcSession._pcm._iceRestart = true
+        this._rtcSession._pcm._requestIceAccess().then((response) => {*/
+        createTransportSoftPhone().then((response) => {
+            response = response.softphoneMediaConnections
+                var rtcPeerConnectionConfig = JSON.parse(JSON.stringify(RTC_PEER_CONNECTION_CONFIG));
+                rtcPeerConnectionConfig.iceServers = response;
+                rtcPeerConnectionConfig.iceCandidatePoolSize = DEFAULT_ICE_CANDIDATE_POOL_SIZE;
+
+                this._rtcSession._pc.setConfiguration(rtcPeerConnectionConfig);
+                return this._rtcSession._pc.createOffer({ iceRestart: true });
+            }).then((rtcSessionDescription) => {
+                this._rtcSession._localSessionDescription = rtcSessionDescription;
+                this.logger.info("ICE restart offer created and set as local description");
+                this._rtcSession._state.setSubState(new SetLocalSessionDescriptionSubstate(this._rtcSession));
+            }).catch((error) => {
+                this.logger.error("ICE restart failed", error);
+                this._rtcSession._state.setSubState(new ConnectedSubstate(this._rtcSession));
+            });
     }
 
 
@@ -192,7 +210,7 @@ export class ConnectSignalingAndIceCollectionSubstate {
         // As the peer connection manager is enabled, the RTCSession is created without a signaling channel.
         // To utilize the existing signaling state machine for SDP exchange, the RTCSession's signaling channel
         // is bound to the peer connection manager's signaling channel.
-        this._rtcSession._bindSignalingChannel();
+        //DSL binding is not needed wince we don't work with pcm this._rtcSession._bindSignalingChannel();
     }
     onEnter() {
         setTimeout(() => {
@@ -306,11 +324,14 @@ export class InviteAnswerSubstate {
 
     attemptInvite() {
         // Attempt to send an invite, as we do not know if the signaling (websocket connection) is down or not
-        this._rtcSession._createSignalingChannel().connect();
-        this._rtcSession._pcm._signalingChannel.transit(new PendingInviteState(this._rtcSession._pcm._signalingChannel));
-        this._rtcSession._pcm._signalingChannel.invite(
+        //DSL we don't use PCM but directly on the session
+       
+       this._rtcSession._signalingChannel.transit(new PendingInviteState(this._rtcSession._signalingChannel));
+       //DSL ADDED a 3e parameter indicating iceRestart 
+       this._rtcSession._signalingChannel.invite(
             this._rtcSession._localSessionDescription.sdp,
-            this._iceCandidates);
+            this._iceCandidates,true);
+
     }
 
     retryInvite() {

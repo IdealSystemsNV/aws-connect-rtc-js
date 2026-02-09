@@ -46,8 +46,8 @@ export default class StandardStrategy extends CCPInitiationStrategyInterface {
     }
 
     addStream(_pc, stream) {
-       //_pc.addStream(stream);
-               //DSL 118.0.0 webrtc 
+        //_pc.addStream(stream);
+        //DSL 118.0.0 webrtc 
         stream.getTracks().forEach(track => {
             _pc.addTrack(track, stream);
             });

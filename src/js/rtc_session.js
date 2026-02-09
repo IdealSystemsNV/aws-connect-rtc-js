@@ -1221,6 +1221,7 @@ export default class RtcSession {
             self._pc = self._createPeerConnection(RTC_PEER_CONNECTION_CONFIG, RTC_PEER_CONNECTION_OPTIONAL_CONFIG);
         }
         self._pc.ontrack = hitch(self, self._ontrack);
+        self._pc.onaddstream = hitch(self, self._ontrack);
         self._pc.onicecandidate = hitch(self, self._onIceCandidate);
         self._pc.onconnectionstatechange = hitch(self, self._onPeerConnectionStateChange);
         self._pc.oniceconnectionstatechange = hitch(self, self._onIceStateChange);

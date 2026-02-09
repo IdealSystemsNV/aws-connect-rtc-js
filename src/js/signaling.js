@@ -172,7 +172,9 @@ export class PendingInviteState extends SignalingState {
      * @param sdp
      * @param iceCandidates
      */
-    invite(sdp, iceCandidates) {
+    //DSL ADDED 3e paramater for icerestart
+
+    invite(sdp, iceCandidates,icerestart=false) {
         var self = this;
         var inviteId = uuid();
 
@@ -191,10 +193,16 @@ export class PendingInviteState extends SignalingState {
                 peerConnectionToken: self._signaling._pcm.peerConnectionToken
             };
         } else {
+            //DSL ADDED iceRestart,contactId,peerConnectionId,peerConnectionToken, persistentConnection: false
             inviteParams = {
                 sdp: sdp,
                 candidates: iceCandidates,
-                callContextToken : self._signaling._contactToken
+                callContextToken : self._signaling._contactToken,
+                iceRestart:icerestart,
+                contactId: self?._signaling?.callId?.contactid ?? null,
+                peerConnectionId:self._signaling.peerConnectionId,
+                peerConnectionToken: self._signaling.peerConnectionToken,
+                persistentConnection: false
             };
         }
 
@@ -272,7 +280,12 @@ export class PendingAnswerState extends FailOnTimeoutState {
                             msg.result.peerConnectionToken
                         );
                     } else {
-                        self._signaling._answeredHandler(msg.result.sdp, msg.result.candidates);
+                        //DSL ADDED peerconnectionId, peerconnectionToken
+                        self._signaling.peerConnectionId = msg.result.peerConnectionId;
+                        self._signaling.peerConnectionToken = msg.result.peerConnectionToken;
+
+                        self._signaling._answeredHandler(msg.result.sdp, msg.result.candidates,msg.result.peerConnectionId,
+                            msg.result.peerConnectionToken);
                     }
                     self._signaling._isMediaClusterPath = !(msg.result.sdp.includes('AmazonConnect') && msg.result.sdp.includes('silenceSupp'));
                     resolve();
@@ -348,14 +361,15 @@ export class PendingAcceptState extends SignalingState {
     async sendAcceptRequest() {
         this._acceptId = uuid();
         var acceptParams = {};
-        if (this._signaling._pcm) {
+        //DSL we don't use PCM  if (this._signaling._pcm) {
+            //DSL ADDED persistentConnection: false,peerConnectionId,peerConnectionToken
             acceptParams = {
-                contactId: typeof this._signaling._pcm.callId === "undefined" ? null : this._signaling._pcm.callId,
-                persistentConnection: this._signaling._pcm.isPPCEnabled,
-                peerConnectionId: this._signaling._pcm.peerConnectionId,
-                peerConnectionToken: this._signaling._pcm.peerConnectionToken
+                contactId: self?._signaling?.callId?.contactid ?? null,
+                persistentConnection: false,
+                peerConnectionId: this._signaling.peerConnectionId,
+                peerConnectionToken: this._signaling.peerConnectionToken
             };
-        }
+       // }
 
         this._signaling._wss.send(JSON.stringify({
             jsonrpc: '2.0',
@@ -564,6 +578,43 @@ export class TalkingState extends SignalingState {
         }
         self._signaling._isFirstTimeSetup = false;
     }
+
+    /*DSL not needed I think
+    invite(sdp, iceCandidates) {
+        var self = this;
+        var inviteId = uuid();
+
+        var inviteParams;
+
+        if (self._signaling._pcm) {
+            inviteParams = {
+                sdp: sdp,
+                candidates: iceCandidates,
+                callContextToken: self._signaling._contactToken, // could be null
+                contactId: typeof self._signaling.callId === "undefined" ? "" : self._signaling.callId, // could be null
+                browserId: self._signaling._pcm.browserId, // identical id for browser
+                persistentConnection: self._signaling._pcm.isPPCEnabled, // flag which indicates if persistent connection is enabled in agent configuration
+                peerConnectionId: self._signaling._pcm.peerConnectionId, // generate by peerconnection factory
+                iceRestart: self._signaling._pcm._iceRestart, // will be true, if ice connection failed
+                peerConnectionToken: self._signaling._pcm.peerConnectionToken
+            };
+        } else {
+            inviteParams = {
+                sdp: sdp,
+                candidates: iceCandidates,
+                callContextToken : self._signaling._contactToken
+            };
+        }
+
+        self.logger.log('Sending SDP', getRedactedSdp(sdp));
+
+        self._signaling._wss.send(JSON.stringify({
+            jsonrpc: '2.0',
+            method: INVITE_METHOD_NAME,
+            params: inviteParams,
+            id: inviteId,
+        }));
+    }*/
 
     hangup() {
         if (this._signaling._pcm && this._signaling._pcm.isPersistentConnectionEnabled()) {
@@ -915,8 +966,9 @@ export default class AmznRtcSignaling {
     _reconnect() {
         this._wss = this._connectWebSocket(this._buildReconnectUri());
     }
-    invite(sdp, iceCandidates) {
-        this.state.invite(sdp, iceCandidates);
+    //DSL ADDED 3e parameter for function replace
+    invite(sdp, iceCandidates, icerestart=false) {
+        this.state.invite(sdp, iceCandidates,icerestart);
     }
 
     connectContact() {
