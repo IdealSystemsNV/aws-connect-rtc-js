@@ -16,7 +16,7 @@ import { PendingInviteState,PendingInviteDSLState } from './signaling';
 
 import {
   createTransportSoftPhone,
-} from '../../../../src/state';
+} from '../../../../src/state/setup/api_ac_cloud';
 
 import {
     RTCIceCandidate,
